@@ -1,1 +1,0 @@
-# egemenkopuz.github.io

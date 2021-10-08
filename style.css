@@ -1,0 +1,109 @@
+:root {
+    --bg-color-1:#1D1F20;
+    --bg-color-2:#292c2e;
+    --title-color-1: #a0a3a5;
+    --title-color-2: #ed666f;
+    --title-color-3: #66b0ed;
+}
+
+::-webkit-scrollbar {width: 5px;}
+::-webkit-scrollbar-track {background: var(--bg-color-1);}
+::-webkit-scrollbar-thumb {background: #888;}
+::-webkit-scrollbar-thumb:hover {background: white;}
+
+.no-select {
+    -webkit-touch-callout: none;
+      -webkit-user-select: none;
+       -khtml-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none;
+}
+
+.bg-color-1 {background-color: var(--bg-color-1);}
+.bg-color-2 {background-color: var(--bg-color-2);}
+.title-color-1 {color: var(--title-color-1);}
+.title-color-2 {color: var(--title-color-2);}
+
+
+*,  
+*:before,
+*:after {
+    font-kerning: auto;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+html {
+    /* scroll-behavior: smooth;
+    font-size: 10pt;
+    line-height: 1.5;
+    font-weight: 400;
+    -webkit-text-size-adjust: 100%; */
+    background-color: var(--bg-color-1);
+    font-family: "Montserrat", Helvetica, Arial, sans-serif;
+}
+
+body {   
+    margin: 0;
+}
+
+h1 {
+    margin: 0;
+    line-height: 1.5;
+    letter-spacing: -4px;
+    font-size:32pt;
+    text-align: center;
+    font-family: "Press Start 2P";
+    vertical-align: middle;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: auto min(100%,720px) auto;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  height: 100vh;
+}
+
+.segment { 
+
+}
+
+.intro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+}
+
+.socials {
+    color: var(--title-color-1);
+    margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 28pt;
+}
+
+.fas,.fab {
+    padding: 6px;
+}
+
+.socials .fas:hover {
+    color:var(--title-color-3);
+}
+
+.socials .fab:hover {
+    color: var(--title-color-2);
+}
