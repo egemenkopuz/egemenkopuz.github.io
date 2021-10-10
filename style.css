@@ -86,6 +86,13 @@ a {
     transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
+    background-color: #1D1F20;
+    border: #292c2e 2px solid;
+    padding: 32px;
+}
+
+.intro:hover {
+    border-color: var(--title-color-2);
 }
 
 .socials {

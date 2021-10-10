@@ -1,9 +1,11 @@
 const canvas = document.getElementById("grid-anim");
+const intro = document.getElementsByClassName("intro");
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 var stop = false;
+var stopLines = false;
 var frameCount = 0;
 var fpsInterval, startTime, now, then, elapsed;
 
@@ -11,7 +13,6 @@ let mouse = {
     x : null,
     y : null,
     radius: 150,
-    // radius : (canvas.height/80)*(canvas.width/80),
     radiusHalf: this.radius / 2
 }
 
@@ -29,15 +30,21 @@ window.addEventListener('mouseout',
         mouse.y = undefined;
     })
 
+intro[0].addEventListener("mouseover", function (event) {
+    stopLines = true;
+    })
+intro[0].addEventListener("mouseout", function (event) {
+    stopLines = false;
+    })
+
 function lerp (start,end, amt) {
     return (1 - amt) * start + amt * end;
 }
 
 class Particles {
-    constructor(size,gap) {
+    constructor(size) {
         this.particlesArray = [];
         this.size = size;
-        this.gap = gap;
     }
     populate(xGap, yGap) {
         
@@ -80,7 +87,7 @@ class Particle {
 
     draw(inMouseRange , dx, dy, distance) {
         ctx.beginPath();
-        if (inMouseRange) {
+        if (inMouseRange && !stopLines) {
             let dirX = dx / distance;
             let dirY = dy / distance;
             let newX, newY;
@@ -97,11 +104,12 @@ class Particle {
             }
             ctx.fillStyle = this.cColor;
             ctx.fill();
-
+            
             ctx.beginPath();
             ctx.strokeStyle = this.cColor;
             ctx.moveTo(newX, newY);
             ctx.lineTo(mouse.x, mouse.y);
+            ctx.lineWidth = 3;
             ctx.stroke();
         }
         else {
@@ -112,13 +120,12 @@ class Particle {
     }
 
     update() {
-        this.size = Math.cos(0.001 * (now + this.x +this.y)) * 5 + 5;
+        this.size = Math.cos(0.002 * (now + this.x +this.y)) * 5 + 5;
         let amp = this.size / 10;
         let rVal = Math.floor(lerp(0, 237, amp));
         let gVal = Math.floor(lerp(255, 102, amp));
         let bVal = Math.floor(lerp(255, 111, amp));
         this.cColor = `rgba(${rVal},${gVal},${bVal},${amp})`;
-        console.log(this.cColor);
         let dx = mouse.x - this.x;
         let dy = mouse.y - this.y;
         let distance = Math.sqrt(dx * dx + dy * dy);
@@ -135,7 +142,6 @@ class Particle {
 function init() {
     particles = new Particles(10,100);
     particles.populate(128,128);
-    
 }
 
 function startAnimation(fps) {
