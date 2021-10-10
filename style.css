@@ -55,8 +55,8 @@ body {
 h1 {
     margin: 0;
     line-height: 1.5;
-    letter-spacing: -4px;
-    font-size:32pt;
+    letter-spacing: -0.5rem;
+    font-size:3rem;
     text-align: center;
     font-family: "Press Start 2P";
     vertical-align: middle;
@@ -93,7 +93,7 @@ a {
     margin: auto;
     display: flex;
     flex-wrap: wrap;
-    font-size: 28pt;
+    font-size: 3rem;
 }
 
 .fas,.fab {
