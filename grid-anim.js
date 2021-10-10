@@ -4,10 +4,15 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+var halfWidth = innerWidth/2;
+var halfHeight = innerHeight/2;
+
 var stop = false;
 var stopLines = false;
 var frameCount = 0;
 var fpsInterval, startTime, now, then, elapsed;
+
+var globalX, globalY = 0;
 
 let mouse = {
     x : null,
@@ -20,7 +25,9 @@ window.addEventListener('mousemove',
     function(event) {
         mouse.x = event.x;
         mouse.y = event.y;
+        if (!stop) {
 
+        }
     }
 )
 
@@ -28,6 +35,13 @@ window.addEventListener('mouseout',
     function() {
         mouse.x = undefined;
         mouse.y = undefined;
+    })
+
+canvas.addEventListener('click', 
+    function(event) {
+        if (projectiles.length() <= 3) {
+            projectiles.populateRandom(mouse.x,mouse.y,1,2000);
+        }
     })
 
 intro[0].addEventListener("mouseover", function (event) {
@@ -61,6 +75,17 @@ class Particles {
             }
         }
     }
+
+    populateRandom(x,y,n,ts=500) {
+        for (let i = 0; i < n; i++) {
+            let dirX = (Math.random() - 0.5) * 25;
+            let dirY = (Math.random() - 0.5) * 25;
+            this.particlesArray.push(
+                new Particle(x, y, this.size,dirX,dirY,ts)
+            );
+        }
+    }
+
     get(i) {
         return this.particlesArray[i];
     }
@@ -68,47 +93,51 @@ class Particles {
     length() {
         return this.particlesArray.length;
     }
-
-    isChanged() { return this.changed; }
 }
 
-const TAU = Math.PI * 2;
-var pushPower = 2;
-
+var pp = Math.exp(2) - 1;
 class Particle {
-    constructor(x, y, size) {
+    constructor(x, y, size, dirX = 0, dirY = 0, timespan = -1, amplitude = 0.5, period = 1, isProjectile = false) {
         this.x = x;
         this.y = y;
         this.size = size;
-
-        this.amplitude = 0.5;
-        this.period = 1;
+        this.dirX = dirX;
+        this.dirY = dirY;
+        this.timespan = timespan;
+        this.amplitude = amplitude;
+        this.period = period;
+        this.isProjectile = this.isProjectile;
     }
 
     draw(inMouseRange , dx, dy, distance) {
         ctx.beginPath();
         if (inMouseRange && !stopLines) {
-            let dirX = dx / distance;
-            let dirY = dy / distance;
+            let ppDirX = dx / distance;
+            let ppDirY = dy / distance;
             let newX, newY;
-            let pp = Math.exp(pushPower) - 1;
             if (distance < mouse.radiusHalf) {
-                newX = this.x + dirX * pp;
-                newY = this.y + dirY * pp;
+                newX = this.x + ppDirX * pp;
+                newY = this.y + ppDirY * pp;
                 ctx.arc(newX, newY, this.size, Math.PI * 2, false);
             }
             else {
-                newX = this.x - dirX * pp;
-                newY = this.y - dirY * pp;
+                newX = this.x - ppDirX * pp;
+                newY = this.y - ppDirY * pp;
                 ctx.arc(newX, newY, this.size, Math.PI * 2, false);
             }
             ctx.fillStyle = this.cColor;
             ctx.fill();
-            
+
             ctx.beginPath();
             ctx.strokeStyle = this.cColor;
-            ctx.moveTo(newX, newY);
-            ctx.lineTo(mouse.x, mouse.y);
+            if (newX < halfWidth) {
+                ctx.bezierCurveTo(newX, newY, newX, newY + 50, mouse.x, mouse.y,);
+            }
+            else {
+                ctx.bezierCurveTo(newX, newY, newX, newY - 50, mouse.x, mouse.y,);
+            }
+            // ctx.moveTo(newX, newY);
+            // ctx.lineTo(mouse.x, mouse.y);
             ctx.lineWidth = 3;
             ctx.stroke();
         }
@@ -116,6 +145,29 @@ class Particle {
             ctx.arc(this.x, this.y, this.size, Math.PI * 2, false);
             ctx.fillStyle = this.cColor;
             ctx.fill();
+        }
+        if (!this.isProjectile) {
+            for (let i = 0; i < projectiles.length(); i++) {
+                console.log("hey");
+                let p = projectiles.get(i);
+                let dx = p.x - this.x;
+                let dy = p.y - this.y;
+                let d = Math.sqrt(dx * dx + dy * dy);
+                if (d < 150) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = this.cColor;
+                    if (this.x < halfWidth) {
+                        ctx.bezierCurveTo(this.x, this.y, this.x, this.y + 50, p.x, p.y);
+                    }
+                    else {
+                        ctx.bezierCurveTo(this.x, this.y, this.x, this.y - 50, p.x, p.y);
+                    }
+                    // ctx.moveTo(this.x, this.y);
+                    // ctx.lineTo(p.x, p.y);
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+            }
         }
     }
 
@@ -135,13 +187,21 @@ class Particle {
         else {
             this.draw(false);
         }
+
+        this.x += this.dirX;
+        this.y += this.dirY;
+
+        if (this.timespan > 0) {
+            this.timespan -= elapsed;
+        }
     }
 }
 
 
 function init() {
-    particles = new Particles(10,100);
-    particles.populate(128,128);
+    particles = new Particles(10);
+    particles.populate(96,96);
+    projectiles = new Particles(10);
 }
 
 function startAnimation(fps) {
@@ -165,10 +225,19 @@ function animate() {
     if (elapsed > fpsInterval) {
         then = now - (elapsed % fpsInterval);
         ctx.clearRect(0,0,innerWidth,innerHeight)
-        for (let i = 0; i < particles.length(); i++) {
-            particles.get(i).update();
+        for (let i = particles.length() - 1; i >= 0; i--) {
+            let p = particles.get(i);
+            particles.get(i).update();   
         }
-    
+        for (let i = projectiles.length() - 1; i >= 0; i--) {
+            let p = projectiles.get(i);
+            if (p.timespan > 0) {
+                projectiles.get(i).update();
+            }
+            else {
+                projectiles.particlesArray.splice(i,1);
+            }
+        }
     }
 }
 
