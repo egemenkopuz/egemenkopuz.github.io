@@ -116,12 +116,11 @@ class Grid {
     }
 
     populate(rowGap, colGap) {
-        let startX = Math.floor((innerWidth % rowGap) / 2);
-        let startY = Math.floor((innerHeight % colGap) / 2);
+        let startX = Math.floor(rowGap/2 + (innerWidth % rowGap) / 2);
+        let startY = Math.floor(colGap/2 + (innerHeight % colGap) / 2);
         
-        let endX = innerWidth - startX;
-        let endY = innerHeight - startY;
-
+        let endX = innerWidth - Math.floor(rowGap / 2);
+        let endY = innerHeight - Math.floor(colGap / 2);
 
         let curY = startY;
         for (let i = 0; curY <= endY; i++) {
